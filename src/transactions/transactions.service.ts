@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { eventTypes, transactionBody } from './constants';
+import { eventTypes, item, transactionBody } from './constants';
 import Helpers from '../shared/helpers'
 
 @Injectable()
@@ -53,22 +53,22 @@ export class TransactionsService {
         } = this.validateBody(body);
         switch(eventType) {
             case (eventTypes.SALES): {
-
+                this.handleSale(date, invoiceId, items);
             }
             case (eventTypes.TAX_PAYMENT): {
-
+                this.handleTaxPayment(date, invoiceId, items);
             }
             default: {
-
+                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
             }
         }
     }
 
-    handleSale() {
-
+    handleSale(date: Date, invoiceId: string, items: item[]) {
+        //TODO
     }
 
-    handleTaxPayment() {
-
+    handleTaxPayment(date: Date, invoiceId: string, items: item[]) {
+        //TODO
     }
 }
