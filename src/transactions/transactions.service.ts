@@ -5,6 +5,7 @@ import Helpers from '../shared/helpers'
 @Injectable()
 export class TransactionsService {
     validateBody(body: transactionBody){
+        console.log('validating request');
         const {
             eventType,
             date,
@@ -14,37 +15,45 @@ export class TransactionsService {
 
         // Validate event type
         if (!eventType || !(eventType in eventTypes))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('eventType', body);
 
         // Validate date
         if (!Helpers.isDateValid(date))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('date', body);
 
         // Validate invoiceId
         if (!Helpers.isGUIDValid(invoiceId))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('invoiceId', body);
 
-        // Validate Items
-        items.forEach((item) => {
+        // Validate Items and cast numbers
+        const parsedItems = items.map((item) => {
             if (!Helpers.isGUIDValid(item.itemId))
-                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+                Helpers.throwValidationFailure('itemId', body);
 
-            if (Helpers.isCostValid(item.cost))
-                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            const parsedCost = Number(item.cost);
+            if (!Helpers.isCostValid(parsedCost))
+                Helpers.throwValidationFailure('cost', body);
 
-            if (Helpers.isTaxValid(item.taxRate))
-                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            if (!Helpers.isTaxValid(item.taxRate))
+                Helpers.throwValidationFailure('taxRate', body);
+
+            return {
+                itemId: item.itemId,
+                cost: parsedCost,
+                taxRate: item.taxRate
+            }
         })
 
         return {
             eventType,
             date: new Date(date),
             invoiceId,
-            items
+            items: parsedItems
         }
     }
 
     createTransaction(body: transactionBody) {
+        console.log('Creating transaction');
         const {
             eventType,
             date,
@@ -54,21 +63,25 @@ export class TransactionsService {
         switch(eventType) {
             case (eventTypes.SALES): {
                 this.handleSale(date, invoiceId, items);
+                break;
             }
             case (eventTypes.TAX_PAYMENT): {
                 this.handleTaxPayment(date, invoiceId, items);
+                break;
             }
             default: {
-                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+                Helpers.throwValidationFailure('emptyBody', body);;
             }
         }
     }
 
     handleSale(date: Date, invoiceId: string, items: item[]) {
+        console.log('Adding Sale');
         //TODO
     }
 
     handleTaxPayment(date: Date, invoiceId: string, items: item[]) {
-        //TODO
+        console.log('Adding Tax Payment');
+        // TODOs
     }
 }

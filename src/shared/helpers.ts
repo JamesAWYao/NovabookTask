@@ -1,3 +1,5 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
 export default class Helpers {
     static isDateValid(date: string): boolean {
         // taken from https://stackoverflow.com/questions/28020805/regex-validate-correct-iso8601-date-string-with-time
@@ -26,5 +28,10 @@ export default class Helpers {
             return false
 
         return true
+    }
+
+    static throwValidationFailure(property, body) {
+        console.log(`Validation Failed for property \"${property}\": ${JSON.stringify(body)}`);
+        throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
     }
 }

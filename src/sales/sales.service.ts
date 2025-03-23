@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { saleBody } from "./constants";
 import Helpers from '../shared/helpers';
 
 @Injectable()
 export class SalesService {
     validateBody(body: saleBody) {
+        console.log('validating request');
         const {
             date,
             invoiceId,
@@ -15,34 +16,37 @@ export class SalesService {
         
         // Validate date
         if (!Helpers.isDateValid(date))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('date', body);
 
         // Validate invoiceId
         if (!Helpers.isGUIDValid(invoiceId))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('invoiceId', body);
 
         // Validate ItemId
         if (!Helpers.isGUIDValid(itemId))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+            Helpers.throwValidationFailure('itemId', body);
 
         // Validate Cost
-        if (Helpers.isCostValid(cost))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+        const parsedCost = Number(cost);
+        if (!Helpers.isCostValid(parsedCost))
+            Helpers.throwValidationFailure('cost', body);
 
         // Validate Tax
-        if (Helpers.isTaxValid(taxRate))
-            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+        const parsedTaxRate = Number(taxRate);
+        if (!Helpers.isTaxValid(parsedTaxRate))
+            Helpers.throwValidationFailure('taxRate', body);
 
         return {
             date: new Date(date),
             invoiceId,
             itemId,
-            cost,
-            taxRate
+            cost: parsedCost,
+            taxRate: parsedTaxRate
         }
     }
 
     updateSale(body: saleBody) {
+        console.log('Updating Sale');
         const {
             date,
             invoiceId,
