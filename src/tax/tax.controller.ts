@@ -1,4 +1,4 @@
-import { Get } from "@nestjs/common";
+import { Get, Query } from "@nestjs/common";
 import { Controller } from '@nestjs/common';
 import { TaxService } from './tax.service';
 
@@ -6,9 +6,9 @@ import { TaxService } from './tax.service';
 export class TaxController {
   constructor(private readonly taxService: TaxService) {}
 
-  @Get()
-  getHello(): string {
-    return 'tax-position';
+  @Get('')
+  queryTaxPosition(@Query('date') date: Date): string {
+    return `tax-position from ${(new Date(date)).getDate()}`;
   }
 }
 
