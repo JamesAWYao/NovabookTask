@@ -61,5 +61,27 @@ export class SalesService {
             cost,
             taxRate
         } = this.validateBody(body);
+
+        console.log(`Updating invoice ${invoiceId} to time ${date} if it exists`);
+        this.dataSource.query(`
+            UPDATE Transactions
+            SET dateAdded = CAST('${date.toISOString()}' AS DATETIME)
+            WHERE invoiceId = '${invoiceId}'
+        `);
+
+        console.log(`Upserting item ${itemId} with cost ${cost} and tax rate ${taxRate}`);
+        this.dataSource.query(`
+            IF NOT EXISTS (SELECT 1 FROM Items WHERE itemId = '${itemId}')
+            BEGIN
+                INSERT INTO Items
+                VALUES ('${itemId}', ${cost}, ${taxRate})
+            END
+            ELSE
+            BEGIN
+                UPDATE Items
+                SET cost = ${cost}, taxRate = ${taxRate}
+                WHERE itemId = '${itemId}'
+            END
+        `);
     }
 }

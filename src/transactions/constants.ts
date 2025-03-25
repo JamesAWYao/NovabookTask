@@ -3,15 +3,15 @@ export enum eventTypes {
     TAX_PAYMENT = 'TAX_PAYMENT'
 }
 
-export type item = {
+export type Item = {
     itemId: string,
     cost: number,
     taxRate: number
 }
 
-export type transactionBody = {
+export type TransactionBody = {
     eventType: string,
     date: string,
     invoiceId: string,
-    items: item[]
+    items: Item[]
 }

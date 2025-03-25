@@ -7,8 +7,8 @@ export class TaxController {
   constructor(private readonly taxService: TaxService) {}
 
   @Get('')
-  queryTaxPosition(@Query('date') date: string): void {
-    this.taxService.queryTaxPosition(date);
+  queryTaxPosition(@Query('date') date: string) {
+    return this.taxService.queryTaxPosition(date);
   }
 }
 

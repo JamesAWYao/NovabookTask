@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eventTypes, item } from './constants';
+import { eventTypes, Item } from './constants';
 import Helpers from '../shared/helpers'
 import { DataSource } from 'typeorm';
 import{ InjectDataSource } from '@nestjs/typeorm';
@@ -102,13 +102,32 @@ export class TransactionsService {
         }
     }
 
-    handleSale(date: Date, invoiceId: string, items: item[]) {
+    handleSale(date: Date, invoiceId: string, items: Item[]) {
         console.log(`Adding Sale with invoiceId\"${invoiceId}\" and date \"${date}\"`);
-        //TODO
+        console.log(`Adding the following items to the Items Table: ${JSON.stringify(items)}`);
+        items.forEach((item: Item) => {
+            // Prevent duplicates by ignoring future attemps to update an exisitng itemid
+            this.dataSource.query(`
+                IF NOT EXISTS (SELECT 1 FROM Items WHERE itemId = '${item.itemId}')
+                BEGIN
+                    INSERT INTO Items
+                    VALUES ('${item.itemId}', ${item.cost}, ${item.taxRate})
+                END
+
+                IF NOT EXISTS (SELECT 1 FROM Transactions WHERE invoiceId = '${invoiceId}')
+                BEGIN
+                    INSERT INTO Transactions
+                    VALUES ('${invoiceId}', '${item.itemId}', CAST('${date.toISOString()}' AS DATETIME))
+                END
+                `);   
+        })    
     }
 
     handleTaxPayment(date: Date, amount: number) {
         console.log(`Adding Tax Payment of value \"${amount}\" and date \"${date}\"`);
-        // TODOs
+        this.dataSource.query(`
+            INSERT INTO Payments (amount, dateAdded)
+            VALUES (${amount}, CAST('${date.toISOString()}' AS DATETIME))
+            `);
     }
 }
