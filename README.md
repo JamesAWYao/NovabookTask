@@ -6,6 +6,7 @@ Novabook's tech test written using the [Nest framework](https://github.com/nestj
 ## Project setup
 
 This project uses a locally running SQLserver instance in docker. To use this you will need to have the following installed:
+* [Node JS](https://nodejs.org/en)
 * [docker engine](https://docs.docker.com/engine/install/)
 * [sqlcmd](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Clinux&pivots=cs1-bash)
 
@@ -25,6 +26,8 @@ The project can now be started with the following command
 ```bash
 $ npm run start
 ```
+
+Please [email me](mailto:james@jamesyao.co.uk) if you encounter any difficulty starting this service at 
 
 Once you have run these, remember to clean up the process and docker instance!
 
@@ -46,6 +49,6 @@ I have made a private GitHub repostiory for this task (so as not to leak anythin
 Some ideas have been left unmade dueto the scope of this work. The following could be explored for a more complete project:
 1. Injecting config using the nest framework to make passing config cleaner and easier to scale
 2. Extending above, connection secrets (such as the sqlserver password) have been hardcoded in where they absolutely should never be for a real project
-3. Using an event sourced database would make everything easier to audit which would be good as payments are involved
+3. Using an event sourced database would make everything easier to audit which would be good as payments are involved, especially when dates are being updated
 4. As this was just a tech test, unit / acceptance / e2e tests have been omitted which obviously would be better for reducing change-fail rate for real production code
 5. An injectable Logger to replace `console.log`s would be nice
