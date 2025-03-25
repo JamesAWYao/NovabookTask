@@ -30,7 +30,9 @@ Once you have run these, remember to clean up the process and docker instance!
 
 ## Notes 
 I chose to make this using the NestJS framework because I like the modular design this encourages.
-I have made a private GitHub repostiory for this task (so as not to leak anything) should you decide you want to see the repo, please email me and I can grant access
+I chose to use SQL with Docker to emulate connecting to a regular SQL database.
+I am just using console logs for observability/logging due to scope
+I have made a private GitHub repostiory for this task (so as not to leak anything) should you decide you want to see the repo, please email me and I can grant access.
 
 ## Assumptions
 * I am assuming taxPosition to be the tax payments minus the sales tax (positive means in credit) 
