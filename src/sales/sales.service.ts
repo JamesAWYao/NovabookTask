@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { saleBody } from "./constants";
 import Helpers from '../shared/helpers';
+import { DataSource } from 'typeorm';
+import{ InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class SalesService {
+    constructor(
+        @InjectDataSource()
+        private dataSource: DataSource
+    ) {}
+
     validateBody(body: saleBody) {
         console.log('validating request');
         const {

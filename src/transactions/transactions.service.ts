@@ -1,21 +1,23 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { eventTypes, item, transactionBody } from './constants';
+import { Injectable } from '@nestjs/common';
+import { eventTypes, item } from './constants';
 import Helpers from '../shared/helpers'
+import { DataSource } from 'typeorm';
+import{ InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class TransactionsService {
-    validateBody(body: transactionBody){
+    constructor(
+        @InjectDataSource()
+        private dataSource: DataSource
+    ) {}
+
+    validateSalesBody(body: any){
         console.log('validating request');
         const {
-            eventType,
             date,
             invoiceId,
             items
         } = body;
-
-        // Validate event type
-        if (!eventType || !(eventType in eventTypes))
-            Helpers.throwValidationFailure('eventType', body);
 
         // Validate date
         if (!Helpers.isDateValid(date))
@@ -45,43 +47,68 @@ export class TransactionsService {
         })
 
         return {
-            eventType,
             date: new Date(date),
             invoiceId,
             items: parsedItems
         }
     }
 
-    createTransaction(body: transactionBody) {
-        console.log('Creating transaction');
+    validateTaxBody(body: any){
+        console.log('validating request');
         const {
-            eventType,
             date,
-            invoiceId,
-            items
-        } = this.validateBody(body);
+            amount
+        } = body;
+
+        // Validate date
+        if (!Helpers.isDateValid(date))
+            Helpers.throwValidationFailure('date', body);
+
+        // Validate amount
+        const parsedAmount = Number(amount);
+        if (!Helpers.isCostValid(parsedAmount))
+            Helpers.throwValidationFailure('amount', body);
+
+        return {
+            date: new Date(date),
+            amount: parsedAmount
+        }
+    }
+
+    createTransaction(body: any) {
+        console.log('Creating transaction');
+        const { eventType } = body;
         switch(eventType) {
             case (eventTypes.SALES): {
+                const { 
+                    date,
+                    invoiceId,
+                    items
+                } = this.validateSalesBody(body)
                 this.handleSale(date, invoiceId, items);
                 break;
             }
             case (eventTypes.TAX_PAYMENT): {
-                this.handleTaxPayment(date, invoiceId, items);
+                const { 
+                    date,
+                    amount
+                } = this.validateTaxBody(body)
+                this.handleTaxPayment(date, amount);
                 break;
             }
             default: {
-                Helpers.throwValidationFailure('emptyBody', body);;
+                Helpers.throwValidationFailure('eventType', body);
             }
         }
     }
 
     handleSale(date: Date, invoiceId: string, items: item[]) {
-        console.log('Adding Sale');
+        console.log(`Adding Sale with invoiceId\"${invoiceId}\" and date \"${date}\"`);
         //TODO
     }
 
-    handleTaxPayment(date: Date, invoiceId: string, items: item[]) {
-        console.log('Adding Tax Payment');
+    handleTaxPayment(date: Date, amount: number) {
+        console.log(`Adding Tax Payment of value \"${amount}\" and date \"${date}\"`);
         // TODOs
     }
 }
